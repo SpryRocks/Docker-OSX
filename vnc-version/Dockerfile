@@ -121,4 +121,24 @@ RUN printf '\n\n\n\n%s\n%s\n\n\n\n' '===========VNC_PASSWORD========== ' "$(<vnc
 
 WORKDIR /home/arch/OSX-KVM
 
+
+ARG COMPLETE=true
+
+# Feel free to take a copy of this image and then host it internally
+ARG IMAGE_URL='https://images2.sick.codes/mac_hdd_ng_auto.img'
+
+# use the COMPLETE arg, for a complete image, ready to boot.
+# otherwise use your own image: -v "$PWD/disk.img":/image
+RUN if [[ "${COMPLETE}" ]]; then \
+    echo "Downloading 20GB+ image... This step might take a while... Press Ctrl+C if you want to abort." \
+    ; rm -f /home/arch/OSX-KVM/mac_hdd_ng.img \
+        && curl -k "${IMAGE_URL}" > /home/arch/OSX-KVM/mac_hdd_ng.img \
+    ; fi
+
+RUN mv ./Launch-nopicker.sh ./Launch.sh
+
+ENV IMAGE_PATH=/home/arch/OSX-KVM/mac_hdd_ng.img
+
+
 CMD ./enable-ssh.sh && envsubst < ./Launch_custom.sh | bash
+
